@@ -1,12 +1,18 @@
 # Memory
-협업 툴: 노션
+
 
 ## 기술 스택
 ### FE
 **react**
 
+
 ### BE
 **Node.js, mysql**
+
+
+### 협업 툴
+**Notion**
+
 
 
 ### 규칙
