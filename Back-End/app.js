@@ -1,5 +1,11 @@
 var mysql = require("mysql2");
 var pw = require("./secret.json");
+const bcrypt = require('bcryptjs');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.use(bodyParser.json());
+
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
