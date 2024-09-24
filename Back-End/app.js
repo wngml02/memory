@@ -1,23 +1,15 @@
-var mysql = require("mysql2");
-var pw = require("./secret.json");
 const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
+const groupRoutes = require('./routes/groupRoutes'); // 그룹 라우트 불러오기
+const db = require('./db'); // 데이터베이스 연결 설정
+
 
 const app = express();
 app.use(bodyParser.json());
 
-var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: pw.password,
-    database: 'memory'
-});
+// 그룹 관련 API 라우트 설정
+app.use('/groups', groupRoutes);
 
-// MySQL 연결 테스트
-db.connect((err) => {
-    if (err) throw err;
-    console.log('MySQL connected...');
-});
 
 app.listen(3000, () => {
     console.log('Server running on port 3000');
