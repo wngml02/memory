@@ -12,11 +12,13 @@ var connection = mysql.createConnection({
     password: pw.password,
     database: 'memory'
 });
-connection.connect();
 
-connection.query('SELECT * from memory_group', (error, rows, fields) => {
-    if (error) throw error;
-    console.log('User info is: ', rows);
+// MySQL 연결 테스트
+db.connect((err) => {
+    if (err) throw err;
+    console.log('MySQL connected...');
 });
 
-connection.end();
+app.listen(3000, () => {
+    console.log('Server running on port 3000');
+});
