@@ -4,7 +4,7 @@ const db = require('../db');
 // 그룹 데이터베이스 저장
 exports.createGroup = (groupData, callback) => {
     const query = `
-        INSERT INTO groups (name, passwordHash, imageUrl, isPublic, introduction) 
+        INSERT INTO \`groups\` (name, passwordHash, imageUrl, isPublic, introduction) 
         VALUES (?, ?, ?, ?, ?)`;
     const values = [
         groupData.name,

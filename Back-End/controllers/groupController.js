@@ -14,33 +14,35 @@ exports.createGroup = (req, res) => {
     // 비밀번호 해시 처리
     bcrypt.hash(password, 10, (err, hash) => {
         if (err) {
+            console.error('Error during password hashing:', err); // 에러 로그 출력
             return res.status(500).json({ message: 'Password encryption failed.' });
         }
 
-        // 데이터베이스에 그룹 정보 저장
+        // 비밀번호 해시 성공 시, DB에 저장하는 로직
         groupModel.createGroup({
             name,
-            passwordHash: hash,
+            passwordHash: hash, // 해시된 비밀번호 저장
             imageUrl,
             isPublic,
             introduction
         }, (err, newGroup) => {
             if (err) {
+                console.error('Error during group creation:', err); // 에러 로그 출력
                 return res.status(500).json({ message: 'Failed to create group.' });
             }
 
-            // 응답에 맞춰 그룹 정보 반환
             return res.status(201).json({
                 id: newGroup.id,
                 name: newGroup.name,
                 imageUrl: newGroup.imageUrl,
                 isPublic: newGroup.isPublic,
-                likeCount: 0, // 새로 생성된 그룹의 공감 수는 0
-                badges: [], // 배지는 처음에는 빈 배열
-                postCount: 0, // 처음에는 게시글 수 0
-                createdAt: newGroup.createdAt, // 생성 시각
+                likeCount: 0,
+                badges: [],
+                postCount: 0,
+                createdAt: newGroup.createdAt,
                 introduction: newGroup.introduction
             });
         });
     });
+
 };
