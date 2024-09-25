@@ -44,5 +44,54 @@ exports.createGroup = (req, res) => {
             });
         });
     });
+};
 
+// 그룹 수정 로직
+exports.updateGroup = (req, res) => {
+    const groupId = req.params.groupId;
+    const { password, name, imageUrl, isPublic, introduction } = req.body;
+
+    // 1. 그룹 정보 가져오기
+    groupModel.getGroupById(groupId, (err, group) => {
+        if (err) {
+            return res.status(500).json({ message: 'Failed to retrieve group.' });
+        }
+
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found.' });
+        }
+
+        // 2. 비밀번호 검증 (해시된 비밀번호와 비교)
+        bcrypt.compare(password, group.passwordHash, (err, isMatch) => {
+            if (err) {
+                return res.status(500).json({ message: 'Error during password comparison.' });
+            }
+
+            // 3. 비밀번호가 일치하지 않으면 403 응답
+            if (!isMatch) {
+                return res.status(403).json({ message: 'Incorrect password.' });
+            }
+
+            // 4. 비밀번호가 일치하면 그룹 정보 수정
+            const updatedData = {
+                name: name || group.name,
+                imageUrl: imageUrl || group.imageUrl,
+                isPublic: isPublic !== undefined ? isPublic : group.isPublic,
+                introduction: introduction || group.introduction
+            };
+
+            // 5. 그룹 업데이트 실행
+            groupModel.updateGroup(groupId, updatedData, (err, result) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Failed to update group.' });
+                }
+
+                return res.status(200).json({
+                    message: 'Group updated successfully.',
+                    groupId: groupId,
+                    updatedData
+                });
+            });
+        });
+    });
 };

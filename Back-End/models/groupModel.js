@@ -38,3 +38,40 @@ exports.createGroup = (groupData, callback) => {
         callback(null, newGroup);
     });
 };
+
+// 그룹 정보 가져오기
+exports.getGroupById = (groupId, callback) => {
+    const query = 'SELECT * FROM `groups` WHERE id = ?';
+    db.query(query, [groupId], (err, result) => {
+        if (err) {
+            return callback(err);
+        }
+        if (result.length === 0) {
+            return callback(null, null); // 그룹을 찾지 못함
+        }
+        callback(null, result[0]); // 그룹 정보 반환
+    });
+};
+
+// 그룹 정보 업데이트
+exports.updateGroup = (groupId, updatedData, callback) => {
+    const query = `
+        UPDATE \`groups\`
+        SET name = ?, imageUrl = ?, isPublic = ?, introduction = ?
+        WHERE id = ?`;
+
+    const values = [
+        updatedData.name,
+        updatedData.imageUrl,
+        updatedData.isPublic,
+        updatedData.introduction,
+        groupId
+    ];
+
+    db.query(query, values, (err, result) => {
+        if (err) {
+            return callback(err);
+        }
+        callback(null, result);
+    });
+};
