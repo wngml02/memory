@@ -26,9 +26,10 @@ Content-Type: application/json
 }
 
 ### 삭제
-DELETE http://localhost:3000/api/groups/2
+DELETE http://localhost:3000/api/groups/1
 Content-Type: application/json
 
 {
-  "password": "second456" // 사용자가 입력한 비밀번호
+    "password": "second456"
 }
+

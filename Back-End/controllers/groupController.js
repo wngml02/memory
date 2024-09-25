@@ -96,38 +96,37 @@ exports.updateGroup = (req, res) => {
     });
 };
 
-
 exports.deleteGroup = (req, res) => {
     const groupId = req.params.groupId;
-    const { password } = req.body; // 요청 본문에서 비밀번호 추출
+    const { password } = req.body;
 
-    // 그룹 정보 조회
+    // 먼저 해당 그룹의 정보를 조회합니다.
     groupModel.getGroupById(groupId, (err, group) => {
         if (err) {
-            return res.status(500).json({ message: 'Error retrieving group.' });
+            return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
         }
         if (!group) {
-            return res.status(404).json({ message: 'Group not found.' });
+            return res.status(404).json({ message: '존재하지 않습니다' });
         }
 
-        // 비밀번호 검증
+        // 비밀번호를 검증합니다.
         bcrypt.compare(password, group.passwordHash, (err, isMatch) => {
             if (err) {
-                return res.status(500).json({ message: 'Error comparing passwords.' });
+                return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
             }
             if (!isMatch) {
-                return res.status(403).json({ message: 'Incorrect password.' });
+                return res.status(403).json({ message: '비밀번호가 틀렸습니다' });
             }
 
-            // 비밀번호 일치 시 그룹 삭제
+            // 비밀번호가 일치하면 그룹을 삭제합니다.
             groupModel.deleteGroup(groupId, (err, result) => {
                 if (err) {
-                    return res.status(500).json({ message: 'Failed to delete the group.', error: err });
+                    return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
                 }
                 if (result.affectedRows === 0) {
-                    return res.status(404).json({ message: 'No group found to delete.' });
+                    return res.status(404).json({ message: '존재하지 않습니다' });
                 }
-                res.status(200).json({ message: 'Group deleted successfully.' });
+                res.status(200).json({ message: '그룹 삭제 성공' });
             });
         });
     });
