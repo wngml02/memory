@@ -95,3 +95,40 @@ exports.updateGroup = (req, res) => {
         });
     });
 };
+
+
+exports.deleteGroup = (req, res) => {
+    const groupId = req.params.groupId;
+    const { password } = req.body; // 요청 본문에서 비밀번호 추출
+
+    // 그룹 정보 조회
+    groupModel.getGroupById(groupId, (err, group) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error retrieving group.' });
+        }
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found.' });
+        }
+
+        // 비밀번호 검증
+        bcrypt.compare(password, group.passwordHash, (err, isMatch) => {
+            if (err) {
+                return res.status(500).json({ message: 'Error comparing passwords.' });
+            }
+            if (!isMatch) {
+                return res.status(403).json({ message: 'Incorrect password.' });
+            }
+
+            // 비밀번호 일치 시 그룹 삭제
+            groupModel.deleteGroup(groupId, (err, result) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Failed to delete the group.', error: err });
+                }
+                if (result.affectedRows === 0) {
+                    return res.status(404).json({ message: 'No group found to delete.' });
+                }
+                res.status(200).json({ message: 'Group deleted successfully.' });
+            });
+        });
+    });
+};

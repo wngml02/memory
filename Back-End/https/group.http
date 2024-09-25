@@ -1,7 +1,5 @@
 #POST http://localhost:3000/api/groups
 
-GET http://localhost:3000/api/groups/2
-Content-Type: application/json
 
 ### 그룹 수정 요청 (PUT)
 PUT http://localhost:3000/api/groups/2
@@ -25,4 +23,12 @@ Content-Type: application/json
     "imageUrl": "http://example.com/new-image.jpg",
     "isPublic": false,
     "introduction": "Updated group introduction."
+}
+
+### 삭제
+DELETE http://localhost:3000/api/groups/2
+Content-Type: application/json
+
+{
+  "password": "second456" // 사용자가 입력한 비밀번호
 }

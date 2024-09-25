@@ -75,3 +75,30 @@ exports.updateGroup = (groupId, updatedData, callback) => {
         callback(null, result);
     });
 };
+
+//조회 로직
+exports.getGroupById = (groupId, callback) => {
+    const query = 'SELECT id, passwordHash FROM `groups` WHERE id = ?';
+    db.query(query, [groupId], (err, results) => {
+        if (err) {
+            return callback(err);
+        }
+        if (results.length === 0) {
+            return callback(null, null);
+        }
+        callback(null, results[0]);
+    });
+};
+
+// 그룹 삭제 쿼리
+exports.deleteGroup = (groupId, callback) => {
+
+    const query = 'DELETE FROM `groups` WHERE id = ?';
+
+    db.query(query, [groupId], (err, result) => {
+        if (err) {
+            return callback(err);
+        }
+        callback(null, result);
+    });
+};
