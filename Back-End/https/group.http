@@ -67,3 +67,6 @@ GET http://localhost:3000/api/groups/4/is-public
 
 ### 공개 여부 판단: 비공개
 GET http://localhost:3000/api/groups/10/is-public
+
+###공감 누르기
+POST http://localhost:3000/api/groups/1/like

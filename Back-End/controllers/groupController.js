@@ -197,3 +197,27 @@ exports.getGroupPublicStatus = (req, res) => {
         });
     });
 };
+
+
+// 공감 누르기
+exports.likeGroup = (req, res) => {
+    const groupId = req.params.groupId;
+
+    // 먼저 그룹이 존재하는지 확인합니다.
+    groupModel.getGroupById(groupId, (err, group) => {
+        if (err) {
+            return res.status(500).json({ message: "서버 오류가 발생했습니다." });
+        }
+        if (!group) {
+            return res.status(404).json({ message: "존재하지 않습니다" });
+        }
+
+        // 그룹이 존재하면 공감 수를 업데이트합니다.
+        groupModel.addLike(groupId, (err, result) => {
+            if (err) {
+                return res.status(500).json({ message: "공감하기 실패" });
+            }
+            res.status(200).json({ message: "그룹 공감하기 성공" });
+        });
+    });
+};

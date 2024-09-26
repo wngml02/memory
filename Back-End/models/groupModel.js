@@ -41,7 +41,7 @@ exports.createGroup = (groupData, callback) => {
 
 // 그룹 정보 가져오기
 exports.getGroupById = (groupId, callback) => {
-    const query = 'SELECT * FROM `groups` WHERE id = ?';
+    const query = 'SELECT * FROM \`groups\` WHERE id = ?';
     db.query(query, [groupId], (err, result) => {
         if (err) {
             return callback(err);
@@ -80,7 +80,7 @@ exports.updateGroup = (groupId, updatedData, callback) => {
 // 그룹 삭제 쿼리
 exports.deleteGroup = (groupId, callback) => {
 
-    const query = 'DELETE FROM `groups` WHERE id = ?';
+    const query = 'DELETE FROM \`groups\` WHERE id = ?';
 
     db.query(query, [groupId], (err, result) => {
         if (err) {
@@ -134,16 +134,13 @@ exports.findGroups = ({ page, pageSize, sortBy, keyword, isPublic }, callback) =
     });
 };
 
-// 비공개 그룹 권한
-exports.getGroupById = (groupId, callback) => {
-    const query = 'SELECT * FROM \`groups\` WHERE id = ?';
-    db.query(query, [groupId], (err, results) => {
+//공감 누르기 로직
+exports.addLike = (groupId, callback) => {
+    const query = 'UPDATE \`groups\` SET likeCount = likeCount + 1 WHERE id = ?';
+    db.query(query, [groupId], (err, result) => {
         if (err) {
             return callback(err);
         }
-        if (results.length === 0) {
-            return callback(null, null);
-        }
-        callback(null, results[0]);
+        callback(null, result);
     });
 };
