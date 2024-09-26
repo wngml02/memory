@@ -2,7 +2,7 @@
 
 
 ### 그룹 수정 요청 (PUT)
-PUT http://localhost:3000/api/groups/2
+PUT http://localhost:3000/api/groups/1
 Content-Type: application/json
 
 {
