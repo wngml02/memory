@@ -76,19 +76,6 @@ exports.updateGroup = (groupId, updatedData, callback) => {
     });
 };
 
-//조회 로직
-exports.getGroupById = (groupId, callback) => {
-    const query = 'SELECT id, passwordHash FROM `groups` WHERE id = ?';
-    db.query(query, [groupId], (err, results) => {
-        if (err) {
-            return callback(err);
-        }
-        if (results.length === 0) {
-            return callback(null, null);
-        }
-        callback(null, results[0]);
-    });
-};
 
 // 그룹 삭제 쿼리
 exports.deleteGroup = (groupId, callback) => {
@@ -144,5 +131,19 @@ exports.findGroups = ({ page, pageSize, sortBy, keyword, isPublic }, callback) =
             }
             callback(null, { total: totalResult[0].total, groups });
         });
+    });
+};
+
+// 비공개 그룹 권한
+exports.getGroupById = (groupId, callback) => {
+    const query = 'SELECT * FROM `groups` WHERE id = ?';
+    db.query(query, [groupId], (err, results) => {
+        if (err) {
+            return callback(err);
+        }
+        if (results.length === 0) {
+            return callback(null, null);
+        }
+        callback(null, results[0]);
     });
 };

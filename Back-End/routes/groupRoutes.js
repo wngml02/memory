@@ -14,4 +14,7 @@ router.delete('/:groupId', groupController.deleteGroup);
 // 공개 그룹 목록 조회
 router.get('/', groupController.listGroups);
 
+//비공개 그룹 권한 확인
+router.post('/:groupId/verify-password', groupController.verifyGroupPassword);
+
 module.exports = router;

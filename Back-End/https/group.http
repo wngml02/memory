@@ -13,15 +13,15 @@ Content-Type: application/json
 
 
 ### 그룹 수정 요청 (PUT)
-PUT http://localhost:3000/api/groups/1
+PUT http://localhost:3000/api/groups/10
 Content-Type: application/json
 
 {
-    "password": "second456",
-    "name": "Updated tester2",
-    "imageUrl": "http://example.com/new-image.jpg",
+    "name": "DIY Projects",
+    "password": "diy12345",
+    "imageUrl": "http://example.com/images/diy.jpg",
     "isPublic": false,
-    "introduction": "Updated group introduction."
+    "introduction": "From crafts to house renovations, share your DIY projects here."
 }
 
 ### 다른 그룹 수정 요청 (PUT)
@@ -49,3 +49,6 @@ GET http://localhost:3000/api/groups
 
 ###그룹 조회 공개그룹 최신순으로
 GET http://localhost:3000/api/groups?page=1&pageSize=10&sortBy=latest&isPublic=true
+
+###그룹 조회 공개그룹 게시글으로
+GET http://localhost:3000/api/groups?page=2&pageSize=10&sortBy=mostPosted&isPublic=true

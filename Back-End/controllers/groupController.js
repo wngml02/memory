@@ -150,3 +150,29 @@ exports.listGroups = (req, res) => {
         });
     });
 };
+
+// 비공개 그룹 권한 확인
+exports.verifyGroupPassword = (req, res) => {
+    const groupId = req.params.groupId;
+    const userInputPassword = req.body.password;
+
+    groupModel.getGroupById(groupId, (err, group) => {
+        if (err) {
+            return res.status(500).json({ message: "Error retrieving group information." });
+        }
+        if (!group) {
+            return res.status(404).json({ message: "Group not found." });
+        }
+
+        bcrypt.compare(userInputPassword, group.passwordHash, (err, isMatch) => {
+            if (err) {
+                return res.status(500).json({ message: "Error comparing passwords." });
+            }
+            if (!isMatch) {
+                return res.status(403).json({ message: "Incorrect password." });
+            }
+
+            res.status(200).json({ message: "Password verified successfully." });
+        });
+    });
+};
