@@ -51,7 +51,7 @@ exports.updateGroup = (req, res) => {
     const groupId = req.params.groupId;
     const { password, name, imageUrl, isPublic, introduction } = req.body;
 
-    // 1. 그룹 정보 가져오기
+    // 그룹 정보 가져오기
     groupModel.getGroupById(groupId, (err, group) => {
         if (err) {
             return res.status(500).json({ message: 'Failed to retrieve group.' });
@@ -61,18 +61,18 @@ exports.updateGroup = (req, res) => {
             return res.status(404).json({ message: 'Group not found.' });
         }
 
-        // 2. 비밀번호 검증 (해시된 비밀번호와 비교)
+        // 비밀번호 검증 (해시된 비밀번호와 비교)
         bcrypt.compare(password, group.passwordHash, (err, isMatch) => {
             if (err) {
                 return res.status(500).json({ message: 'Error during password comparison.' });
             }
 
-            // 3. 비밀번호가 일치하지 않으면 403 응답
+            // 비밀번호가 일치하지 않으면 403 응답
             if (!isMatch) {
                 return res.status(403).json({ message: 'Incorrect password.' });
             }
 
-            // 4. 비밀번호가 일치하면 그룹 정보 수정
+            // 비밀번호가 일치하면 그룹 정보 수정
             const updatedData = {
                 name: name || group.name,
                 imageUrl: imageUrl || group.imageUrl,
@@ -80,7 +80,7 @@ exports.updateGroup = (req, res) => {
                 introduction: introduction || group.introduction
             };
 
-            // 5. 그룹 업데이트 실행
+            // 그룹 업데이트 실행
             groupModel.updateGroup(groupId, updatedData, (err, result) => {
                 if (err) {
                     return res.status(500).json({ message: 'Failed to update group.' });
@@ -96,11 +96,12 @@ exports.updateGroup = (req, res) => {
     });
 };
 
+// 삭제 로직
 exports.deleteGroup = (req, res) => {
     const groupId = req.params.groupId;
     const { password } = req.body;
 
-    // 먼저 해당 그룹의 정보를 조회합니다.
+    // 그룹 조회
     groupModel.getGroupById(groupId, (err, group) => {
         if (err) {
             return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
@@ -109,7 +110,7 @@ exports.deleteGroup = (req, res) => {
             return res.status(404).json({ message: '존재하지 않습니다' });
         }
 
-        // 비밀번호를 검증합니다.
+        // 비밀번호 검증
         bcrypt.compare(password, group.passwordHash, (err, isMatch) => {
             if (err) {
                 return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
@@ -118,7 +119,7 @@ exports.deleteGroup = (req, res) => {
                 return res.status(403).json({ message: '비밀번호가 틀렸습니다' });
             }
 
-            // 비밀번호가 일치하면 그룹을 삭제합니다.
+            // 비밀번호가 일치 시 그룹 삭제
             groupModel.deleteGroup(groupId, (err, result) => {
                 if (err) {
                     return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
