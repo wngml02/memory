@@ -21,5 +21,5 @@ router.post('/:groupId/verify-password', groupController.verifyGroupPassword);
 router.get('/:groupId/is-public', groupController.getGroupPublicStatus);
 
 //공감 누르기
-router.get('/:groupId/like', groupController.likeGroup);
+router.post('/:groupId/like', groupController.likeGroup);
 module.exports = router;
