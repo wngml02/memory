@@ -120,7 +120,7 @@ exports.findGroups = ({ page, pageSize, sortBy, keyword, isPublic }, callback) =
             orderBy = 'ORDER BY likeCount DESC';
             break;
         case 'mostBadge':
-            orderBy = 'ORDER BY badgeCount DESC';
+            orderBy = 'ORDER BY badges DESC';
             break;
         default:
             orderBy = 'ORDER BY createdAt DESC';
@@ -128,8 +128,8 @@ exports.findGroups = ({ page, pageSize, sortBy, keyword, isPublic }, callback) =
 
     const offset = (page - 1) * pageSize;
     const query = `
-        SELECT SQL_CALC_FOUND_ROWS id, name, imageUrl, isPublic, likeCount, badgeCount, postCount, createdAt, introduction
-        FROM groups
+        SELECT SQL_CALC_FOUND_ROWS id, name, imageUrl, isPublic, likeCount, badges, postCount, createdAt, introduction
+        FROM \`groups\`
         ${whereClause}
         ${orderBy}
         LIMIT ${pageSize} OFFSET ${offset}`;
