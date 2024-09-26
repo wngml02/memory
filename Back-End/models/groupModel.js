@@ -136,7 +136,7 @@ exports.findGroups = ({ page, pageSize, sortBy, keyword, isPublic }, callback) =
 
 // 비공개 그룹 권한
 exports.getGroupById = (groupId, callback) => {
-    const query = 'SELECT * FROM `groups` WHERE id = ?';
+    const query = 'SELECT * FROM \`groups\` WHERE id = ?';
     db.query(query, [groupId], (err, results) => {
         if (err) {
             return callback(err);

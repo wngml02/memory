@@ -52,3 +52,12 @@ GET http://localhost:3000/api/groups?page=1&pageSize=10&sortBy=latest&isPublic=t
 
 ###그룹 조회 공개그룹 게시글으로
 GET http://localhost:3000/api/groups?page=2&pageSize=10&sortBy=mostPosted&isPublic=true
+
+
+### 비공개 그룹 권한
+POST http://localhost:3000/api/groups/10/verify-password
+Content-Type: application/json
+
+{
+    "password": "diy12345"
+}
