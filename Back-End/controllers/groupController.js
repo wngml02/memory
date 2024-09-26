@@ -139,6 +139,7 @@ exports.listGroups = (req, res) => {
 
     groupModel.findGroups({ page, pageSize, sortBy, keyword, isPublic }, (err, result) => {
         if (err) {
+            console.error("Error during group retrieval:", err);
             return res.status(500).json({ message: 'Error retrieving groups.' });
         }
         res.json({
