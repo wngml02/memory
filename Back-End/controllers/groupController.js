@@ -176,3 +176,24 @@ exports.verifyGroupPassword = (req, res) => {
         });
     });
 };
+
+//공개 여부 판단
+exports.getGroupPublicStatus = (req, res) => {
+    const groupId = req.params.groupId;
+
+    // 그룹을 데이터베이스에서 찾는 함수 호출
+    groupModel.getGroupById(groupId, (err, group) => {
+        if (err) {
+            return res.status(500).json({ message: "Error retrieving group data." });
+        }
+        if (!group) {
+            return res.status(404).json({ message: "Group not found." });
+        }
+
+        // 성공적으로 그룹을 찾으면 공개 여부를 응답
+        res.status(200).json({
+            id: group.id,
+            isPublic: group.isPublic
+        });
+    });
+};

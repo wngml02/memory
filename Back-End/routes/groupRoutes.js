@@ -17,4 +17,7 @@ router.get('/', groupController.listGroups);
 //비공개 그룹 권한 확인
 router.post('/:groupId/verify-password', groupController.verifyGroupPassword);
 
+//공개 여부 확인
+router.get('/:groupId/is-public', groupController.getGroupPublicStatus);
+
 module.exports = router;
