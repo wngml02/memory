@@ -102,3 +102,47 @@ exports.deleteGroup = (groupId, callback) => {
         callback(null, result);
     });
 };
+
+//공개 그룹 조회
+exports.findGroups = ({ page, pageSize, sortBy, keyword, isPublic }, callback) => {
+    let whereClause = 'WHERE ';
+    whereClause += isPublic ? 'isPublic = true' : 'isPublic = false';
+    if (keyword) {
+        whereClause += ` AND name LIKE '%${keyword}%'`;
+    }
+    // 각 정렬
+    let orderBy = '';
+    switch (sortBy) {
+        case 'mostPosted':
+            orderBy = 'ORDER BY postCount DESC';
+            break;
+        case 'mostLiked':
+            orderBy = 'ORDER BY likeCount DESC';
+            break;
+        case 'mostBadge':
+            orderBy = 'ORDER BY badgeCount DESC';
+            break;
+        default:
+            orderBy = 'ORDER BY createdAt DESC';
+    }
+
+    const offset = (page - 1) * pageSize;
+    const query = `
+        SELECT SQL_CALC_FOUND_ROWS id, name, imageUrl, isPublic, likeCount, badgeCount, postCount, createdAt, introduction
+        FROM groups
+        ${whereClause}
+        ${orderBy}
+        LIMIT ${pageSize} OFFSET ${offset}`;
+
+    db.query(query, (err, groups) => {
+        if (err) {
+            return callback(err);
+        }
+        db.query('SELECT FOUND_ROWS() as total', (err, totalResult) => {
+            if (err) {
+                return callback(err);
+            }
+            callback(null, { total: totalResult[0].total, groups });
+        });
+    });
+};

@@ -11,4 +11,7 @@ router.put('/:groupId', groupController.updateGroup);
 // 그룹 삭제 라우트
 router.delete('/:groupId', groupController.deleteGroup);
 
+// 공개 그룹 목록 조회
+router.get('/', groupController.listGroups);
+
 module.exports = router;

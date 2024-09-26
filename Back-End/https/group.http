@@ -1,4 +1,5 @@
-#POST http://localhost:3000/api/groups
+### 그룹 등록
+POST http://localhost:3000/api/groups
 
 
 ### 그룹 수정 요청 (PUT)
@@ -32,4 +33,7 @@ Content-Type: application/json
 {
     "password": "second456"
 }
+
+###그룹 조회
+GET http://localhost:3000/api/groups
 

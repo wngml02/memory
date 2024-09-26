@@ -132,3 +132,20 @@ exports.deleteGroup = (req, res) => {
         });
     });
 };
+
+//공개그룹 조회 로직
+exports.listGroups = (req, res) => {
+    const { page, pageSize, sortBy, keyword, isPublic } = req.query;
+
+    groupModel.findGroups({ page, pageSize, sortBy, keyword, isPublic }, (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error retrieving groups.' });
+        }
+        res.json({
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(result.total / pageSize),
+            totalItemCount: result.total,
+            data: result.groups
+        });
+    });
+};
