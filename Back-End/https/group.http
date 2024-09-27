@@ -3,8 +3,8 @@ POST http://localhost:3000/api/groups
 Content-Type: application/json
 
 {
-    "name": "Music Makers",
-    "password": "music4life",
+    "name": "example",
+    "password": "m123",
     "imageUrl": "http://example.com/images/music.jpg",
     "isPublic": true,
     "introduction": "A place for musicians to collaborate and share their work."
@@ -13,14 +13,14 @@ Content-Type: application/json
 
 
 ### 그룹 수정 요청 (PUT)
-PUT http://localhost:3000/api/groups/10
+PUT http://localhost:3000/api/groups/15
 Content-Type: application/json
 
 {
-    "name": "DIY Projects",
-    "password": "diy12345",
+    "name": "example",
+    "password": "m123",
     "imageUrl": "http://example.com/images/diy.jpg",
-    "isPublic": false,
+    "isPublic": true,
     "introduction": "From crafts to house renovations, share your DIY projects here."
 }
 
