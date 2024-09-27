@@ -75,3 +75,6 @@ POST http://localhost:3000/api/groups/1/like
 
 ### 공감 누르기 2
 POST http://localhost:3000/api/groups/11/like
+
+### 그룹 상세 조회
+GET http://localhost:3000/api/groups/11

@@ -22,4 +22,7 @@ router.get('/:groupId/is-public', groupController.getGroupPublicStatus);
 
 //공감 누르기
 router.post('/:groupId/like', groupController.likeGroup);
+
+// 그룹 상세 조회
+router.get('/:groupId', groupController.getGroupDetails);
 module.exports = router;

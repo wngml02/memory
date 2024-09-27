@@ -144,3 +144,14 @@ exports.addLike = (groupId, callback) => {
         callback(null, result);
     });
 };
+
+exports.getGroupAdditionalDetails = (groupId, callback) => {
+    // 배지, 좋아요 수, 게시물 수 등을 조회하는 쿼리
+    const query = 'SELECT likeCount, badges, postCount FROM \`groups\` WHERE groupId = ?';
+    db.query(query, [groupId], (err, results) => {
+        if (err) {
+            return callback(err, null);
+        }
+        callback(null, results[0]);
+    });
+};

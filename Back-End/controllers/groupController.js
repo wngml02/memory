@@ -221,3 +221,19 @@ exports.likeGroup = (req, res) => {
         });
     });
 };
+
+// 그룹 상세 정보 조회
+exports.getGroupDetails = (req, res) => {
+    const groupId = req.params.groupId;
+
+    groupModel.getGroupById(groupId, (err, group) => {
+        if (err) {
+            return res.status(500).json({ message: "Error retrieving group details." });
+        }
+        if (!group) {
+            return res.status(404).json({ message: "Group not found." });
+        }
+
+        res.status(200).json(group);
+    });
+};
