@@ -1,0 +1,15 @@
+POST http://localhost:3000/api/groups/4/posts
+Content-Type: application/json
+
+{
+	"nickname": "Book",
+	"title": "test 1",
+	"content": "test 1",
+	"postPassword": "password456",
+	"groupPassword": "password456",
+	"imageUrl": "http://example.com/images/books.jpg",
+	"tags": [ "book", "like" ],
+	"location": "bookclub",
+	"moment": "2024-09-30",
+	"isPublic": true
+}

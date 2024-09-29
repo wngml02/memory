@@ -3,237 +3,194 @@ const bcrypt = require('bcryptjs');
 const groupModel = require('../models/groupModel');
 
 // 그룹 등록 로직
-exports.createGroup = (req, res) => {
+exports.createGroup = async(req, res) => {
     const { name, password, imageUrl, isPublic, introduction } = req.body;
 
-    // 필수 데이터 유효성 검증
     if (!name || !password) {
         return res.status(400).json({ message: 'Name and password are required.' });
     }
 
-    // 비밀번호 해시 처리
-    bcrypt.hash(password, 10, (err, hash) => {
-        if (err) {
-            console.error('Error during password hashing:', err); // 에러 로그 출력
-            return res.status(500).json({ message: 'Password encryption failed.' });
-        }
-
-        // 비밀번호 해시 성공 시, DB에 저장하는 로직
-        groupModel.createGroup({
+    try {
+        const hash = await bcrypt.hash(password, 10);
+        const newGroup = await groupModel.createGroup({
             name,
-            passwordHash: hash, // 해시된 비밀번호 저장
+            passwordHash: hash,
             imageUrl,
             isPublic,
             introduction
-        }, (err, newGroup) => {
-            if (err) {
-                console.error('Error during group creation:', err); // 에러 로그 출력
-                return res.status(500).json({ message: 'Failed to create group.' });
-            }
-
-            return res.status(201).json({
-                id: newGroup.id,
-                name: newGroup.name,
-                imageUrl: newGroup.imageUrl,
-                isPublic: newGroup.isPublic,
-                likeCount: 0,
-                badges: [],
-                postCount: 0,
-                createdAt: newGroup.createdAt,
-                introduction: newGroup.introduction
-            });
         });
-    });
+
+        res.status(201).json({
+            id: newGroup.id,
+            name: newGroup.name,
+            imageUrl: newGroup.imageUrl,
+            isPublic: newGroup.isPublic,
+            likeCount: 0,
+            badges: [],
+            postCount: 0,
+            createdAt: newGroup.createdAt,
+            introduction: newGroup.introduction
+        });
+    } catch (err) {
+        console.error('Error during group creation:', err);
+        res.status(500).json({ message: 'Failed to create group.' });
+    }
 };
 
+
 // 그룹 수정 로직
-exports.updateGroup = (req, res) => {
+exports.updateGroup = async(req, res) => {
     const groupId = req.params.groupId;
     const { password, name, imageUrl, isPublic, introduction } = req.body;
 
-    // 그룹 정보 가져오기
-    groupModel.getGroupById(groupId, (err, group) => {
-        if (err) {
-            return res.status(500).json({ message: 'Failed to retrieve group.' });
-        }
-
+    try {
+        const group = await groupModel.getGroupById(groupId);
         if (!group) {
             return res.status(404).json({ message: 'Group not found.' });
         }
 
-        // 비밀번호 검증 (해시된 비밀번호와 비교)
-        bcrypt.compare(password, group.passwordHash, (err, isMatch) => {
-            if (err) {
-                return res.status(500).json({ message: 'Error during password comparison.' });
-            }
+        const isMatch = await bcrypt.compare(password, group.passwordHash);
+        if (!isMatch) {
+            return res.status(403).json({ message: 'Incorrect password.' });
+        }
 
-            // 비밀번호가 일치하지 않으면 403 응답
-            if (!isMatch) {
-                return res.status(403).json({ message: 'Incorrect password.' });
-            }
+        const updatedData = {
+            name: name || group.name,
+            imageUrl: imageUrl || group.imageUrl,
+            isPublic: isPublic !== undefined ? isPublic : group.isPublic,
+            introduction: introduction || group.introduction
+        };
 
-            // 비밀번호가 일치하면 그룹 정보 수정
-            const updatedData = {
-                name: name || group.name,
-                imageUrl: imageUrl || group.imageUrl,
-                isPublic: isPublic !== undefined ? isPublic : group.isPublic,
-                introduction: introduction || group.introduction
-            };
-
-            // 그룹 업데이트 실행
-            groupModel.updateGroup(groupId, updatedData, (err, result) => {
-                if (err) {
-                    return res.status(500).json({ message: 'Failed to update group.' });
-                }
-
-                return res.status(200).json({
-                    message: 'Group updated successfully.',
-                    groupId: groupId,
-                    updatedData
-                });
-            });
+        await groupModel.updateGroup(groupId, updatedData);
+        res.status(200).json({
+            message: 'Group updated successfully.',
+            groupId: groupId,
+            updatedData
         });
-    });
+    } catch (err) {
+        console.error('Error updating group:', err);
+        res.status(500).json({ message: 'Failed to update group.' });
+    }
 };
 
+
 // 삭제 로직
-exports.deleteGroup = (req, res) => {
+exports.deleteGroup = async(req, res) => {
     const groupId = req.params.groupId;
     const { password } = req.body;
 
-    // 그룹 조회
-    groupModel.getGroupById(groupId, (err, group) => {
-        if (err) {
-            return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
-        }
+    try {
+        const group = await groupModel.getGroupById(groupId);
         if (!group) {
-            return res.status(404).json({ message: '존재하지 않습니다' });
+            return res.status(404).json({ message: 'Group not found.' });
         }
 
-        // 비밀번호 검증
-        bcrypt.compare(password, group.passwordHash, (err, isMatch) => {
-            if (err) {
-                return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
-            }
-            if (!isMatch) {
-                return res.status(403).json({ message: '비밀번호가 틀렸습니다' });
-            }
+        const isMatch = await bcrypt.compare(password, group.passwordHash);
+        if (!isMatch) {
+            return res.status(403).json({ message: 'Incorrect password.' });
+        }
 
-            // 비밀번호가 일치 시 그룹 삭제
-            groupModel.deleteGroup(groupId, (err, result) => {
-                if (err) {
-                    return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
-                }
-                if (result.affectedRows === 0) {
-                    return res.status(404).json({ message: '존재하지 않습니다' });
-                }
-                res.status(200).json({ message: '그룹 삭제 성공' });
-            });
-        });
-    });
+        await groupModel.deleteGroup(groupId);
+        res.status(200).json({ message: 'Group deleted successfully.' });
+    } catch (err) {
+        console.error('Error deleting group:', err);
+        res.status(500).json({ message: 'Failed to delete group.' });
+    }
 };
-
-//공개그룹 조회 로직
-exports.listGroups = (req, res) => {
+//공개 그룹 조회
+exports.listGroups = async(req, res) => {
     const { page, pageSize, sortBy, keyword, isPublic } = req.query;
 
-    groupModel.findGroups({ page, pageSize, sortBy, keyword, isPublic }, (err, result) => {
-        if (err) {
-            console.error("Error during group retrieval:", err);
-            return res.status(500).json({ message: 'Error retrieving groups.' });
-        }
+    try {
+        const result = await groupModel.findGroups({ page, pageSize, sortBy, keyword, isPublic });
         res.json({
             currentPage: parseInt(page),
             totalPages: Math.ceil(result.total / pageSize),
             totalItemCount: result.total,
             data: result.groups
         });
-    });
+    } catch (err) {
+        console.error("Error during group retrieval:", err);
+        res.status(500).json({ message: 'Error retrieving groups.' });
+    }
 };
 
 // 비공개 그룹 권한 확인
-exports.verifyGroupPassword = (req, res) => {
+exports.verifyGroupPassword = async(req, res) => {
     const groupId = req.params.groupId;
-    const userInputPassword = req.body.password;
+    const { password } = req.body;
 
-    groupModel.getGroupById(groupId, (err, group) => {
-        if (err) {
-            return res.status(500).json({ message: "Error retrieving group information." });
-        }
+    try {
+        const group = await groupModel.getGroupById(groupId);
         if (!group) {
             return res.status(404).json({ message: "Group not found." });
         }
 
-        bcrypt.compare(userInputPassword, group.passwordHash, (err, isMatch) => {
-            if (err) {
-                return res.status(500).json({ message: "Error comparing passwords." });
-            }
-            if (!isMatch) {
-                return res.status(403).json({ message: "Incorrect password." });
-            }
+        const isMatch = await bcrypt.compare(password, group.passwordHash);
+        if (!isMatch) {
+            return res.status(403).json({ message: "Incorrect password." });
+        }
 
-            res.status(200).json({ message: "Password verified successfully." });
-        });
-    });
+        res.status(200).json({ message: "Password verified successfully." });
+    } catch (err) {
+        console.error("Error comparing passwords:", err);
+        res.status(500).json({ message: "Error retrieving group information." });
+    }
 };
 
+
 //공개 여부 판단
-exports.getGroupPublicStatus = (req, res) => {
+exports.getGroupPublicStatus = async(req, res) => {
     const groupId = req.params.groupId;
 
-    // 그룹을 데이터베이스에서 찾는 함수 호출
-    groupModel.getGroupById(groupId, (err, group) => {
-        if (err) {
-            return res.status(500).json({ message: "Error retrieving group data." });
-        }
+    try {
+        const group = await groupModel.getGroupById(groupId);
         if (!group) {
             return res.status(404).json({ message: "Group not found." });
         }
 
-        // 성공적으로 그룹을 찾으면 공개 여부를 응답
         res.status(200).json({
             id: group.id,
             isPublic: group.isPublic
         });
-    });
+    } catch (err) {
+        console.error("Error retrieving group data:", err);
+        res.status(500).json({ message: "Error retrieving group data." });
+    }
 };
 
 
 // 공감 누르기
-exports.likeGroup = (req, res) => {
+exports.likeGroup = async(req, res) => {
     const groupId = req.params.groupId;
 
-    // 먼저 그룹이 존재하는지 확인합니다.
-    groupModel.getGroupById(groupId, (err, group) => {
-        if (err) {
-            return res.status(500).json({ message: "서버 오류가 발생했습니다." });
-        }
+    try {
+        const group = await groupModel.getGroupById(groupId);
         if (!group) {
-            return res.status(404).json({ message: "존재하지 않습니다" });
+            return res.status(404).json({ message: "Group not found." });
         }
 
-        // 그룹이 존재하면 공감 수를 업데이트합니다.
-        groupModel.addLike(groupId, (err, result) => {
-            if (err) {
-                return res.status(500).json({ message: "공감하기 실패" });
-            }
-            res.status(200).json({ message: "그룹 공감하기 성공" });
-        });
-    });
+        await groupModel.addLike(groupId);
+        res.status(200).json({ message: "Group liked successfully." });
+    } catch (err) {
+        console.error("Error liking group:", err);
+        res.status(500).json({ message: "Failed to like group." });
+    }
 };
 
 // 그룹 상세 정보 조회
-exports.getGroupDetails = (req, res) => {
+exports.getGroupDetails = async(req, res) => {
     const groupId = req.params.groupId;
 
-    groupModel.getGroupById(groupId, (err, group) => {
-        if (err) {
-            return res.status(500).json({ message: "Error retrieving group details." });
-        }
+    try {
+        const group = await groupModel.getGroupById(groupId);
         if (!group) {
             return res.status(404).json({ message: "Group not found." });
         }
 
         res.status(200).json(group);
-    });
+    } catch (err) {
+        console.error("Error retrieving group details:", err);
+        res.status(500).json({ message: "Error retrieving group details." });
+    }
 };

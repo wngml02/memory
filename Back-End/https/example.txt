@@ -1,0 +1,86 @@
+3
+{
+    "name": "Hiking Enthusiasts",
+    "password": "pass123",
+    "imageUrl": "http://example.com/images/hiking.jpg",
+    "isPublic": true,
+    "introduction": "Join us to explore new trails every weekend!"
+}
+4
+{
+    "name": "Book Club",
+    "password": "password456",
+    "imageUrl": "http://example.com/images/books.jpg",
+    "isPublic": true,
+    "introduction": "A group for book lovers to share and discuss their favorite reads."
+}
+{
+    "name": "Gourmet Group",
+    "password": "eatwell789",
+    "imageUrl": "http://example.com/images/food.jpg",
+    "isPublic": true,
+    "introduction": "Discover and discuss the best food from around the world."
+}
+{
+    "name": "Fitness Fans",
+    "password": "strong1010",
+    "imageUrl": "http://example.com/images/fitness.jpg",
+    "isPublic": true,
+    "introduction": "A group dedicated to fitness enthusiasts of all levels."
+}
+{
+    "name": "Tech Innovators",
+    "password": "tech2020",
+    "imageUrl": "http://example.com/images/tech.jpg",
+    "isPublic": true,
+    "introduction": "Exploring the latest in technology and innovation."
+}
+{
+    "name": "Photography Lovers",
+    "password": "snap1234",
+    "imageUrl": "http://example.com/images/photography.jpg",
+    "isPublic": true,
+    "introduction": "Capture the world through the lens with fellow photography enthusiasts."
+}
+{
+    "name": "Gardening Gurus",
+    "password": "garden4321",
+    "imageUrl": "http://example.com/images/gardening.jpg",
+    "isPublic": true,
+    "introduction": "Share tips and tricks for growing a beautiful garden."
+}
+{
+    "name": "DIY Projects",
+    "password": "diy12345",
+    "imageUrl": "http://example.com/images/diy.jpg",
+    "isPublic": true,
+    "introduction": "From crafts to house renovations, share your DIY projects here."
+}
+{
+    "name": "Language Exchange",
+    "password": "languageEx123",
+    "imageUrl": "http://example.com/images/language.jpg",
+    "isPublic": true,
+    "introduction": "Practice and learn new languages with friends from around the world."
+}
+{
+    "name": "Chess Club",
+    "password": "checkmate2024",
+    "imageUrl": "http://example.com/images/chess.jpg",
+    "isPublic": true,
+    "introduction": "For those who enjoy the strategy of chess."
+}
+{
+    "name": "Travel Buddies",
+    "password": "traveltheworld",
+    "imageUrl": "http://example.com/images/travel.jpg",
+    "isPublic": true,
+    "introduction": "Find travel companions and share your adventures."
+}
+{
+    "name": "Music Makers",
+    "password": "music4life",
+    "imageUrl": "http://example.com/images/music.jpg",
+    "isPublic": true,
+    "introduction": "A place for musicians to collaborate and share their work."
+}

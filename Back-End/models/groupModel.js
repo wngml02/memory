@@ -2,7 +2,7 @@
 const db = require('../db');
 
 // 그룹 데이터베이스 저장
-exports.createGroup = (groupData, callback) => {
+exports.createGroup = async(groupData) => {
     const query = `
         INSERT INTO \`groups\` (name, passwordHash, imageUrl, isPublic, introduction, likeCount, badges, postCount) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
@@ -17,49 +17,30 @@ exports.createGroup = (groupData, callback) => {
         0 // postCount 초기값 0
     ];
 
-    db.query(query, values, (err, result) => {
-        if (err) {
-            return callback(err);
-        }
-
-        // 생성된 그룹 정보 반환
-        const newGroup = {
-            id: result.insertId,
-            name: groupData.name,
-            imageUrl: groupData.imageUrl,
-            isPublic: groupData.isPublic,
-            likeCount: 0, // 응답에 likeCount 포함
-            badges: [], // 응답에 빈 배열로 badges 포함
-            postCount: 0, // postCount 포함
-            introduction: groupData.introduction,
-            createdAt: new Date().toISOString()
-        };
-
-        callback(null, newGroup);
-    });
+    const [result] = await db.query(query, values);
+    return {
+        id: result.insertId,
+        ...groupData,
+        likeCount: 0,
+        badges: [],
+        postCount: 0,
+        createdAt: new Date().toISOString()
+    };
 };
 
 // 그룹 정보 가져오기
-exports.getGroupById = (groupId, callback) => {
+exports.getGroupById = async(groupId) => {
     const query = 'SELECT * FROM \`groups\` WHERE id = ?';
-    db.query(query, [groupId], (err, result) => {
-        if (err) {
-            return callback(err);
-        }
-        if (result.length === 0) {
-            return callback(null, null); // 그룹을 찾지 못함
-        }
-        callback(null, result[0]); // 그룹 정보 반환
-    });
+    const [result] = await db.query(query, [groupId]);
+    return result.length ? result[0] : null;
 };
 
 // 그룹 정보 업데이트
-exports.updateGroup = (groupId, updatedData, callback) => {
+exports.updateGroup = async(groupId, updatedData) => {
     const query = `
         UPDATE \`groups\`
         SET name = ?, imageUrl = ?, isPublic = ?, introduction = ?
         WHERE id = ?`;
-
     const values = [
         updatedData.name,
         updatedData.imageUrl,
@@ -68,36 +49,22 @@ exports.updateGroup = (groupId, updatedData, callback) => {
         groupId
     ];
 
-    db.query(query, values, (err, result) => {
-        if (err) {
-            return callback(err);
-        }
-        callback(null, result);
-    });
+    await db.query(query, values);
 };
 
-
-// 그룹 삭제 쿼리
-exports.deleteGroup = (groupId, callback) => {
-
+// 그룹 삭제
+exports.deleteGroup = async(groupId) => {
     const query = 'DELETE FROM \`groups\` WHERE id = ?';
-
-    db.query(query, [groupId], (err, result) => {
-        if (err) {
-            return callback(err);
-        }
-        callback(null, result);
-    });
+    await db.query(query, [groupId]);
 };
 
-//공개 그룹 조회
-exports.findGroups = ({ page, pageSize, sortBy, keyword, isPublic }, callback) => {
-    let whereClause = 'WHERE ';
-    whereClause += isPublic ? 'isPublic = true' : 'isPublic = false';
+// 공개 그룹 조회
+exports.findGroups = async({ page, pageSize, sortBy, keyword, isPublic }) => {
+    let whereClause = `WHERE isPublic = ${isPublic}`;
     if (keyword) {
         whereClause += ` AND name LIKE '%${keyword}%'`;
     }
-    // 각 정렬
+
     let orderBy = '';
     switch (sortBy) {
         case 'mostPosted':
@@ -121,37 +88,26 @@ exports.findGroups = ({ page, pageSize, sortBy, keyword, isPublic }, callback) =
         ${orderBy}
         LIMIT ${pageSize} OFFSET ${offset}`;
 
-    db.query(query, (err, groups) => {
-        if (err) {
-            return callback(err);
-        }
-        db.query('SELECT FOUND_ROWS() as total', (err, totalResult) => {
-            if (err) {
-                return callback(err);
-            }
-            callback(null, { total: totalResult[0].total, groups });
-        });
-    });
+    const [groups] = await db.query(query);
+    const [
+        [{ total }]
+    ] = await db.query('SELECT FOUND_ROWS() as total');
+    return { total, groups };
 };
 
-//공감 누르기 로직
-exports.addLike = (groupId, callback) => {
+// 공감 누르기 로직
+exports.addLike = async(groupId) => {
     const query = 'UPDATE \`groups\` SET likeCount = likeCount + 1 WHERE id = ?';
-    db.query(query, [groupId], (err, result) => {
-        if (err) {
-            return callback(err);
-        }
-        callback(null, result);
-    });
+    await db.query(query, [groupId]);
 };
-
-exports.getGroupAdditionalDetails = (groupId, callback) => {
-    // 배지, 좋아요 수, 게시물 수 등을 조회하는 쿼리
-    const query = 'SELECT likeCount, badges, postCount FROM \`groups\` WHERE groupId = ?';
-    db.query(query, [groupId], (err, results) => {
-        if (err) {
-            return callback(err, null);
-        }
-        callback(null, results[0]);
-    });
+// 배지, 좋아요 수, 게시물 수 등을 조회하는 쿼리
+exports.getGroupAdditionalDetails = async(groupId) => {
+    const query = 'SELECT likeCount, badges, postCount FROM \`groups\` WHERE id = ?';
+    try {
+        const [results] = await db.query(query, [groupId]);
+        return results.length ? results[0] : null;
+    } catch (err) {
+        console.error("Database error in getGroupAdditionalDetails:", err);
+        throw err; // 에러를 호출 스택으로 전파하여 적절히 처리할 수 있도록 함
+    }
 };
