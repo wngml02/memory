@@ -1,62 +1,56 @@
+// controllers/postController.js
 const bcrypt = require('bcryptjs');
 const groupModel = require('../models/groupModel');
 const postModel = require('../models/postModel');
 
-exports.createPostInGroup = (req, res) => {
-    const groupId = req.params.groupId;
-    const { nickname, title, content, postPassword, groupPassword, imageUrl, tags, location, moment, isPublic } = req.body;
+// 게시글 등록
+exports.createPostInGroup = async(req, res) => {
+    try {
+        const { groupId } = req.params;
+        const {
+            nickname,
+            title,
+            content,
+            postPassword,
+            groupPassword,
+            imageUrl,
+            tags,
+            location,
+            moment,
+            isPublic
+        } = req.body;
 
-    groupModel.getGroupById(groupId, (err, group) => {
-        if (err) {
-            console.error("Error retrieving group:", err);
-            return res.status(500).json({ message: "Failed to retrieve group." });
+        // 필수 데이터 유효성 검사
+        if (!groupId || !nickname || !title || !content || !postPassword || !groupPassword) {
+            return res.status(400).json({ message: "잘못된 요청입니다" });
         }
-        if (!group) {
-            return res.status(404).json({ message: "Group not found." });
+
+        // 그룹 정보 가져오기 및 비밀번호 검증
+        const group = await groupModel.getGroupById(groupId);
+        if (!group || !(await bcrypt.compare(groupPassword, group.passwordHash))) {
+            return res.status(403).json({ message: "그룹 비밀번호가 올바르지 않습니다." });
         }
 
-        bcrypt.compare(groupPassword, group.passwordHash, (err, isMatch) => {
-            if (err) {
-                console.error("Error comparing password:", err);
-                return res.status(500).json({ message: "Password comparison failed." });
-            }
-            if (!isMatch) {
-                return res.status(403).json({ message: "Incorrect group password." });
-            }
+        // 게시글 비밀번호 해시 처리
+        const hashedPostPassword = await bcrypt.hash(postPassword, 10);
 
-            postModel.createPost({
-                groupId,
-                nickname,
-                title,
-                content,
-                postPassword,
-                imageUrl,
-                tags,
-                location,
-                moment,
-                isPublic
-            }, (err, postId) => {
-                if (err) {
-                    console.error("Error creating post in group:", err);
-                    return res.status(500).json({ message: "Failed to create post." });
-                }
-
-                res.status(200).json({
-                    id: postId,
-                    groupId,
-                    nickname,
-                    title,
-                    content,
-                    imageUrl,
-                    tags,
-                    location,
-                    moment,
-                    isPublic,
-                    likeCount: 0,
-                    commentCount: 0,
-                    createdAt: new Date().toISOString()
-                });
-            });
+        // 게시글 생성
+        const newPost = await postModel.createPost({
+            groupId,
+            nickname,
+            title,
+            content,
+            postPassword: hashedPostPassword,
+            imageUrl,
+            tags,
+            location,
+            moment,
+            isPublic
         });
-    });
+
+        res.status(200).json(newPost);
+    } catch (error) {
+        console.error("Error creating post in group:", error);
+        res.status(500).json({ message: "게시글 생성에 실패했습니다." });
+    }
 };

@@ -1,16 +1,11 @@
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
 const pw = require("./secret.json");
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: pw.password,
     database: 'memory'
-});
-
-db.connect((err) => {
-    if (err) throw err;
-    console.log('MySQL connected...');
 });
 
 module.exports = db;
