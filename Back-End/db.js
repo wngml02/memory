@@ -1,10 +1,10 @@
 const mysql = require("mysql2/promise");
-const pw = require("./secret.json");
+//const pw = require("./secret.json");
 
 const db = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: pw.password,
+    password: 'juhee1211',
     database: 'memory'
 });
 
